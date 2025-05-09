@@ -17,10 +17,6 @@ pids
 .DS_Store
 Thumbs.db
 
-# Environment variables
-.env
-.env.*
-
 # Build output
 /dist
 /build

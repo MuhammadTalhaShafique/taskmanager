@@ -11,19 +11,19 @@ app.use(cors());
 
 // MongoDB Connection
 const mongoURI =
-  process.env.MONGODB_URI || "mongodb://localhost:27017/taskmanager";
+  process.env.MONGODB_URI || "mongodb://localhost:27017/taskmanager"; // Default for local dev if MONGODB_URI not set
 
 mongoose
-  .connect("mongodb://mongo-db/taskManager")
+  .connect(mongoURI) // <--- CHANGE THIS LINE to use the mongoURI variable
   .then(() => {
-    console.log("Connected to MongoDB");
+    console.log(`Connected to MongoDB using: ${mongoURI}`); // Optional: Log which URI was used
 
     // Start the server only after successful DB connection
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   })
   .catch((err) => {
-    console.error("MongoDB connection error:", err);
+    console.error("MongoDB connection error with URI:", mongoURI, err); // Optional: Log URI on error
     process.exit(1); // Exit the process if DB connection fails
   });
 
