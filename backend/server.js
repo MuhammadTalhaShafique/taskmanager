@@ -50,42 +50,50 @@ const Todo = mongoose.model("Todo", todoSchema);
 const auth = async (req, res, next) => {
   try {
     const token = req.header("Authorization")?.replace("Bearer ", "");
-    if (!token)
+    if (!token) {
+      console.log("Auth middleware: No token provided."); // Optional: log no token case
       return res.status(401).json({ error: "No token, authorization denied" });
+    }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.userId = decoded.userId;
     next();
   } catch (error) {
+    console.error("Auth middleware error:", error.name, error.message); // ADD/MODIFY THIS LINE
     res.status(401).json({ error: "Invalid token" });
   }
 };
 
 // Register User
-app.post("/api/users/register", async (req, res) => {
+app.post("/api/todos", auth, async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    console.log(`POST /api/todos - User ID from auth: ${req.userId}`);
+    console.log(`POST /api/todos - Request body:`, req.body);
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser)
-      return res.status(400).json({ message: "User already exists" });
+    const { title, description } = req.body;
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    if (!req.userId) {
+      console.error(
+        "POST /api/todos - Aborting: req.userId is missing after auth middleware."
+      );
+      return res
+        .status(401)
+        .json({ message: "User ID missing, authentication issue." });
+    }
+    if (!title) {
+      console.error(
+        "POST /api/todos - Aborting: title is missing from request body."
+      );
+      return res.status(400).json({ message: "Title is required for a todo." });
+    }
 
-    const user = new User({ name, email, password: hashedPassword });
-    await user.save();
-
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
-
-    res.status(201).json({
-      token,
-      user: { id: user._id, name: user.name, email: user.email },
-    });
+    const todo = new Todo({ title, description, user: req.userId });
+    await todo.save();
+    console.log("POST /api/todos - Todo saved successfully:", todo._id);
+    res.status(201).json(todo);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    console.error("POST /api/todos - Error during save operation:", error);
+    res.status(500).json({ message: "Server error while creating todo" });
   }
 });
 

@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   frontend:
     build: ./frontend
@@ -18,6 +17,8 @@ services:
     restart: unless-stopped
     ports:
       - "5000:5000"
+    environment:
+      - JWT_SECRET=FP93ln7u7JsVjaYt4ZXm00pHF6LcNtNWvrIl1WBEwxc=
     depends_on:
       - database
     networks:
