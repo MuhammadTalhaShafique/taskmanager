@@ -1,0 +1,42 @@
+version: "3.8"
+services:
+  frontend:
+    build: ./frontend
+    container_name: frontend-react
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend
+    networks:
+      - mern-network
+
+  backend:
+    build: ./backend
+    container_name: backend-node
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    depends_on:
+      - database
+    networks:
+      - mern-network
+
+  database:
+    image: mongo:latest
+    container_name: mongo-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - /home/ec2-user/mongo-backup:/data/db
+    networks:
+      - mern-network
+
+networks:
+  mern-network:
+    driver: bridge
+
+volumes:
+  mongo_data:
+    driver: local
