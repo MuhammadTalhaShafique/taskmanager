@@ -31,7 +31,7 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - /home/ec2-user/mongo-backup:/data/db
+      - /home/ubuntu/mongo-backup:/data/db
     networks:
       - mern-network
 
