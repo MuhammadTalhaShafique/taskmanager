@@ -1,0 +1,52 @@
+services:
+  frontend:
+    image: mtalhashafique/taskmanager-frontend
+    container_name: frontend-react
+    ports:
+      - "3000:3000"
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend
+    networks:
+      - mern-network
+    mem_limit: 256m
+    memswap_limit: 512m
+    restart: unless-stopped
+
+  backend:
+    image: mtalhashafique/taskmanager-backend
+    container_name: backend-node
+    ports:
+      - "5000:5000"
+    environment:
+      - JWT_SECRET=FP93ln7u7JsVjaYt4ZXm00pHF6LcNtNWvrIl1WBEwxc=
+      - MONGODB_URI=mongodb://mongo-db/taskManager
+    depends_on:
+      - database
+    networks:
+      - mern-network
+    mem_limit: 512m
+    memswap_limit: 1g
+    restart: unless-stopped
+
+  database:
+    image: mongo:latest
+    container_name: mongo-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - mern-network
+    mem_limit: 512m
+    memswap_limit: 1g
+    restart: unless-stopped
+
+networks:
+  mern-network:
+    driver: bridge
+
+volumes:
+  mongo_data:
+    driver: local
